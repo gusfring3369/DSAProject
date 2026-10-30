@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RTTS Viewer</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Real-Time Task Scheduler Simulator</h1>
+      <p class="subtitle">Dual indexed min-heaps, binary and Fibonacci · RM and EDF · checked against theory</p>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="simulation" class="active">Simulation</button>
+      <button data-tab="compare">Binary vs Fibonacci</button>
+      <button data-tab="verdict">Verdict check</button>
+      <button data-tab="benchmark">Benchmark</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ============================================================ Simulation -->
+    <section id="tab-simulation" class="tab active">
+      <div id="no-trace" class="notice hidden">
+        No simulation data yet. Build the project and run <code>./rtts demo</code>, then reload this page.
+      </div>
+
+      <div class="grid two">
+        <div class="card">
+          <h2 id="set-title">Task set</h2>
+          <table class="data" id="task-table"></table>
+        </div>
+        <div class="card">
+          <h2>Module 7 · theory tests</h2>
+          <div id="theory"></div>
+        </div>
+      </div>
+
+      <div class="card controls">
+        <label>Policy
+          <select id="policy"><option>RM</option><option>EDF</option></select>
+        </label>
+        <label>Queue
+          <select id="queue">
+            <option value="binary">Binary heap</option>
+            <option value="fibonacci">Fibonacci heap</option>
+            <option value="sorted_list">Sorted list</option>
+          </select>
+        </label>
+        <div class="buttons">
+          <button id="btn-start" title="Back to tick 0">&#9198;</button>
+          <button id="btn-prev" title="Previous tick">&#9664;</button>
+          <button id="btn-play" class="primary" title="Play / pause">&#9654; Play</button>
+          <button id="btn-next" title="Next tick">&#9654;</button>
+          <button id="btn-end" title="Last tick">&#9197;</button>
+        </div>
+        <label class="grow">Tick <b id="tick-label">0</b>
+          <input type="range" id="tick" min="0" max="0" value="0">
+        </label>
+        <label>Speed
+          <select id="speed">
+            <option value="900">slow</option>
+            <option value="400" selected>normal</option>
+            <option value="120">fast</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="stats" id="live-stats"></div>
+
+      <div class="card">
+        <h2>Schedule (Gantt chart) <span class="hint">solid = already simulated, faded = still to come</span></h2>
+        <div id="gantt" class="chart"></div>
+      </div>
+
+      <div class="grid two">
+        <div class="card">
+          <h2>Module 2 · Sleep queue <span class="hint">key = wake-up time</span></h2>
+          <div id="sleep-tree" class="tree"></div>
+        </div>
+        <div class="card">
+          <h2>Module 3 · Ready queue <span class="hint" id="ready-key">key = period</span></h2>
+          <div id="ready-tree" class="tree"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Event log</h2>
+        <ol id="event-log" class="log"></ol>
+      </div>
+    </section>
+
+    <!-- ===================================================== Binary vs Fibonacci -->
+    <section id="tab-compare" class="tab">
+      <div class="card controls">
+        <label>Policy
+          <select id="compare-policy"><option>RM</option><option selected>EDF</option></select>
+        </label>
+        <p class="hint grow">Same task set, same policy, three different queues. The schedule must be identical; only the work per tick changes.</p>
+      </div>
+      <div class="card">
+        <h2>Key comparisons per tick</h2>
+        <div id="compare-chart" class="chart"></div>
+      </div>
+      <div class="card">
+        <h2>Summary</h2>
+        <table class="data" id="compare-table"></table>
+      </div>
+    </section>
+
+    <!-- ========================================================== Verdict check -->
+    <section id="tab-verdict" class="tab">
+      <div id="no-verdict" class="notice hidden">
+        No verdict data yet. Run <code>./rtts verdict</code> (or <code>./rtts verdict --sets 100</code> for a quick run), then reload.
+      </div>
+      <div class="stats" id="verdict-stats"></div>
+      <div class="card controls">
+        <span>Number of tasks</span>
+        <div class="buttons" id="verdict-n"></div>
+        <p class="hint grow">Share of task sets each test or simulation accepts. The exact tests (RTA, U&nbsp;&le;&nbsp;1) must sit exactly on the simulation curves.</p>
+      </div>
+      <div class="grid two">
+        <div class="card"><h2>Rate-Monotonic</h2><div id="verdict-rm" class="chart"></div></div>
+        <div class="card"><h2>EDF</h2><div id="verdict-edf" class="chart"></div></div>
+      </div>
+      <div class="card">
+        <h2>Table</h2>
+        <table class="data" id="verdict-table"></table>
+      </div>
+    </section>
+
+    <!-- ============================================================== Benchmark -->
+    <section id="tab-benchmark" class="tab">
+      <div id="no-benchmark" class="notice hidden">
+        No benchmark data yet. Run <code>./rtts benchmark</code>, then reload.
+      </div>
+      <p class="hint" id="benchmark-info"></p>
+      <div class="grid two">
+        <div class="card"><h2>Average comparisons per tick</h2><div id="bench-avg" class="chart"></div></div>
+        <div class="card"><h2>Worst comparisons in one tick</h2><div id="bench-worst" class="chart"></div></div>
+      </div>
+      <div class="grid two">
+        <div class="card"><h2>Average time per tick (&micro;s)</h2><div id="bench-time" class="chart"></div></div>
+        <div class="card">
+          <h2>What this shows</h2>
+          <ul class="notes">
+            <li><b>Sorted list:</b> insert walks the list, so the work grows with N.</li>
+            <li><b>Binary heap:</b> every operation is O(log N), in the worst case too.</li>
+            <li><b>Fibonacci heap:</b> insert is O(1) and work is postponed to ExtractMin, so it does the fewest comparisons. It allocates a node per insert and follows pointers, so it can still be slower in real time.</li>
+            <li>The worst tick is t&nbsp;=&nbsp;0, when all N tasks are released at once.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Table</h2>
+        <table class="data" id="bench-table"></table>
+      </div>
+    </section>
+  </main>
+
+  <footer>CS603 Advanced Data Structures and Algorithms · NIT Tiruchirappalli</footer>
+
+  <!-- Data written by the C++ program. A missing file is fine: that tab shows a hint instead. -->
+  <script src="data/trace.js"></script>
+  <script src="data/verdict.js"></script>
+  <script src="data/benchmark.js"></script>
+
+  <script src="js/svg.js"></script>
+  <script src="js/trees.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
