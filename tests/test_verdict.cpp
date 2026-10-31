@@ -1,5 +1,5 @@
 // test_verdict.cpp
-// Module 8 on a few hundred random task sets: theory and simulation must agree.
+// TC22 - TC24: Module 8 (verdict check) and the dataset files.
 
 #include "rtts/dataset.hpp"
 #include "rtts/experiments.hpp"
@@ -9,13 +9,13 @@
 
 using namespace rtts;
 
-TEST(verdict_on_sample_set) {
+TEST(TC22_verdict_on_sample_set) {
     Verdict v = checkTaskSet(sampleTaskSet());
     CHECK(v.agrees());
     CHECK(v.rmSim && v.edfSim && v.sameSchedule);
 }
 
-TEST(verdict_experiment_has_no_mismatches) {
+TEST(TC23_verdict_experiment_has_no_mismatches) {
     auto records = makeDataset(10);   // 3 * 11 * 10 = 330 sets
     VerdictReport report = runVerdictExperiment(records);
     CHECK_EQ(report.totalSets, 330);
@@ -28,7 +28,7 @@ TEST(verdict_experiment_has_no_mismatches) {
         if (row.n == 5 && row.targetU < 0.51) CHECK(row.edfSim > 0.99);
 }
 
-TEST(dataset_csv_round_trip) {
+TEST(TC24_dataset_csv_round_trip) {
     auto records = makeDataset(2);
     saveDatasetCsv(records, "build_test_tmp/tasksets.csv");
     auto loaded = loadDatasetCsv("build_test_tmp/tasksets.csv");

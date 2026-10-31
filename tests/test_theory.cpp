@@ -1,5 +1,6 @@
 // test_theory.cpp
-// The theory tests, checked against the numbers on the "Dataset" slide.
+// TC11 - TC16: the theory tests (Module 7) and the task generator (Module 1),
+// checked against the numbers on the "Dataset" slide.
 
 #include <cmath>
 
@@ -9,7 +10,7 @@
 
 using namespace rtts;
 
-TEST(sample_set_matches_the_slides) {
+TEST(TC11_sample_set_matches_the_slides) {
     TaskSet tasks = sampleTaskSet();
     CHECK(std::abs(totalUtilization(tasks) - 0.75) < 1e-9);
     CHECK(std::abs(liuLaylandBound(3) - 0.7798) < 1e-3);
@@ -25,7 +26,7 @@ TEST(sample_set_matches_the_slides) {
     CHECK_EQ(r[2], 28);
 }
 
-TEST(rta_detects_a_miss) {
+TEST(TC12_rta_detects_a_miss) {
     // U = 0.5 + 0.5 = 1.0: fine for EDF, but under RM T1 needs R = 11 > D = 10.
     TaskSet tasks = {Task(0, 4, 2, 4), Task(1, 10, 5, 10)};
     CHECK(edfTest(tasks));
@@ -33,21 +34,21 @@ TEST(rta_detects_a_miss) {
     CHECK_EQ(responseTimes(tasks)[1], -1);
 }
 
-TEST(liu_layland_is_only_sufficient) {
+TEST(TC13_liu_layland_is_only_sufficient) {
     // Harmonic periods: U = 1.0 is schedulable by RM, but Liu-Layland says no.
     TaskSet tasks = {Task(0, 10, 5, 10), Task(1, 20, 10, 20)};
     CHECK(!liuLaylandTest(tasks));
     CHECK(rtaTest(tasks));
 }
 
-TEST(edf_test_is_exact_at_u_equal_one) {
+TEST(TC14_edf_test_is_exact_at_u_equal_one) {
     TaskSet full = {Task(0, 10, 5, 10), Task(1, 25, 5, 25), Task(2, 50, 15, 50)};   // 0.5 + 0.2 + 0.3
     CHECK(edfTest(full));
     TaskSet over = {Task(0, 10, 5, 10), Task(1, 25, 5, 25), Task(2, 50, 16, 50)};
     CHECK(!edfTest(over));
 }
 
-TEST(uunifast_sums_to_target) {
+TEST(TC15_uunifast_sums_to_target) {
     Random rng(9);
     for (int n : {2, 5, 20}) {
         auto u = uunifast(n, 0.8, rng);
@@ -57,7 +58,7 @@ TEST(uunifast_sums_to_target) {
     }
 }
 
-TEST(hyperperiod_is_lcm) {
+TEST(TC16_hyperperiod_is_lcm) {
     CHECK_EQ(hyperperiod(sampleTaskSet()), 40L);
     TaskSet tasks = {Task(0, 25, 1, 25), Task(1, 40, 1, 40)};
     CHECK_EQ(hyperperiod(tasks), 200L);

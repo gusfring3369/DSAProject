@@ -266,7 +266,9 @@ or, with CMake:
 ctest --test-dir build
 ```
 
-The 19 tests cover: all three queues against a sorted reference (insert, extract, remove-any, key update); Fibonacci lazy insert, consolidation and decrease-key; the theory numbers from the slides (U = 0.75, bound 0.780, product 1.95, R = 2, 7, 28); the worked example Gantt chart; EDF vs RM at U = 1; overload detection; identical schedules across queues; the verdict experiment; and the CSV round trip.
+The 24 test cases (TC01 – TC24) cover: every queue against a sorted reference (insert, extract, remove-any, key changes, decrease-key, empty queue); the binary heap's shape and index after 2,000 random operations; Fibonacci lazy insert, consolidation, heap order and the cascading cut; comparison counts; the theory numbers from the slides (U = 0.75, bound 0.780, product 1.95, R = 2, 7, 28); the worked example Gantt chart; EDF vs RM at U = 1; overload detection; identical schedules across queues; the verdict experiment; and the CSV round trip.
+
+The full list with inputs and expected results is in [docs/TEST_CASES.md](docs/TEST_CASES.md); the metrics we evaluate are defined in [docs/EVALUATION_METRICS.md](docs/EVALUATION_METRICS.md).
 
 ---
 

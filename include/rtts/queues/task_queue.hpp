@@ -48,6 +48,9 @@ public:
     virtual Task* extractMin() = 0;             // remove and return the top task
     virtual void remove(Task* task) = 0;        // remove ANY task
     virtual void update(Task* task) = 0;        // call after a task's key changed
+    // Call after a task's key got SMALLER. By default this is just update();
+    // the two heaps override it with their faster textbook versions.
+    virtual void decreaseKey(Task* task) { update(task); }
     virtual bool contains(const Task* task) const = 0;
     virtual std::size_t size() const = 0;
     virtual std::vector<Task*> tasks() const = 0;

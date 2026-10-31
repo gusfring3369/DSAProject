@@ -36,7 +36,7 @@ public:
     Task* extractMin() override;                // O(log N) amortized, O(N) worst case
     void remove(Task* task) override;           // O(log N) amortized
     void update(Task* task) override;           // general change: remove + insert
-    void decreaseKey(Task* task);               // O(1) amortized, key got SMALLER
+    void decreaseKey(Task* task) override;      // O(1) amortized, key got SMALLER
     bool contains(const Task* task) const override;
     std::size_t size() const override { return nodes_.size(); }
     std::vector<Task*> tasks() const override;

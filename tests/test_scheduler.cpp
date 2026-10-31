@@ -1,5 +1,6 @@
 // test_scheduler.cpp
-// The simulator, checked against the worked example on the slides.
+// TC17 - TC21: the simulator (Modules 2 - 6), checked against the worked
+// example on the slides.
 
 #include <string>
 
@@ -21,7 +22,7 @@ std::string ganttString(const Metrics& m) {
 
 }  // namespace
 
-TEST(worked_example_under_rm) {
+TEST(TC17_worked_example_under_rm) {
     // Slide "Worked Example (Set 0 under RM)":
     //   at t = 10 Task 0 preempts Task 2, and Task 2 finishes at 28.
     for (const std::string& queue : allQueueKinds()) {
@@ -34,7 +35,7 @@ TEST(worked_example_under_rm) {
     }
 }
 
-TEST(edf_schedules_what_rm_cannot) {
+TEST(TC18_edf_schedules_what_rm_cannot) {
     TaskSet tasks = {Task(0, 4, 2, 4), Task(1, 10, 5, 10)};   // U = 1.0
     Simulator rm(tasks, Policy::RM, "binary");
     Simulator edf(tasks, Policy::EDF, "fibonacci");
@@ -43,7 +44,7 @@ TEST(edf_schedules_what_rm_cannot) {
     CHECK_EQ(edf.metrics().idleTicks, 0);   // U = 1: the CPU is never idle
 }
 
-TEST(overload_is_detected) {
+TEST(TC19_overload_is_detected) {
     TaskSet tasks = {Task(0, 10, 6, 10), Task(1, 20, 10, 20)};   // U = 1.1
     for (const std::string& queue : allQueueKinds()) {
         Simulator sim(tasks, Policy::EDF, queue);
@@ -51,7 +52,7 @@ TEST(overload_is_detected) {
     }
 }
 
-TEST(snapshots_show_the_queues) {
+TEST(TC20_snapshots_show_the_queues) {
     Simulator sim(sampleTaskSet(), Policy::RM, "fibonacci", true);
     sim.run();
     CHECK_EQ(sim.snapshots().size(), 40u);
@@ -65,7 +66,7 @@ TEST(snapshots_show_the_queues) {
     CHECK_EQ(first.running, 0);
 }
 
-TEST(same_schedule_with_every_queue) {
+TEST(TC21_same_schedule_with_every_queue) {
     Random rng(11);
     for (int i = 0; i < 50; ++i) {
         TaskSet tasks = generateTaskSet(8, 0.9, rng);

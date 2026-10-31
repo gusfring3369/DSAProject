@@ -50,6 +50,11 @@ void BinaryHeap::update(Task* task) {
     siftDown(position_.at(task->id));
 }
 
+void BinaryHeap::decreaseKey(Task* task) {
+    // A smaller key can only move the task towards the root.
+    siftUp(position_.at(task->id));
+}
+
 bool BinaryHeap::contains(const Task* task) const {
     return position_.count(task->id) > 0;
 }

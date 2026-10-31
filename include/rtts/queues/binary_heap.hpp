@@ -27,6 +27,7 @@ public:
     Task* extractMin() override;                // O(log N)
     void remove(Task* task) override;           // O(log N), any task
     void update(Task* task) override;           // O(log N)
+    void decreaseKey(Task* task) override;      // O(log N), only sifts up
     bool contains(const Task* task) const override;
     std::size_t size() const override { return items_.size(); }
     std::vector<Task*> tasks() const override { return items_; }
