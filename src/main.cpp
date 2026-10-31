@@ -3,7 +3,7 @@
 //
 //   rtts demo        run one task set, print the Gantt chart, export it for the viewer
 //   rtts step        walk through the simulation tick by tick, showing both heaps
-//   rtts compare     binary heap vs Fibonacci heap vs sorted list on the same task set
+//   rtts compare     all four data structures on the same task set
 //   rtts dataset     generate the synthetic dataset as CSV
 //   rtts verdict     Module 8 over the whole dataset (simulator vs theory)
 //   rtts benchmark   cost per tick of each queue inside the scheduler, as the task count grows
@@ -178,7 +178,7 @@ int cmdCompare(const Options& opts) {
     TaskSet tasks = chooseTaskSet(opts, title);
     Policy policy = parsePolicy(opts.get("policy", "EDF"));
 
-    view::printHeader("Binary heap vs Fibonacci heap vs sorted list");
+    view::printHeader("Binary heap vs Fibonacci heap vs sorted list vs red-black tree");
     std::cout << "  " << title << ", policy = " << policyName(policy) << "\n";
     view::printTaskTable(tasks);
 
@@ -193,7 +193,7 @@ int cmdCompare(const Options& opts) {
                   << std::setw(17) << m.worstTickCost() << std::setw(9) << m.missCount() << "      "
                   << (m.gantt == reference ? view::green("yes") : view::red("NO")) << "\n";
     }
-    std::cout << "\n  All three queues must give the same schedule; only the work per tick differs.\n";
+    std::cout << "\n  All four data structures must give the same schedule; only the work per tick differs.\n";
     return 0;
 }
 
@@ -292,7 +292,7 @@ Usage:  rtts <command> [options]
 Commands
   demo        Simulate one task set, print the Gantt chart, export it for the viewer
   step        Walk through the simulation tick by tick and watch both queues change
-  compare     Same task set with binary heap, Fibonacci heap and sorted list
+  compare     Same task set with all four data structures
   dataset     Write the synthetic dataset (UUniFast) to a CSV file
   verdict     Module 8: simulator vs theory over the whole dataset
   benchmark   Cost per tick of each queue inside the scheduler, as the number of tasks grows
