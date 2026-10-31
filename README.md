@@ -3,6 +3,8 @@
 **CS603 Advanced Data Structures and Algorithms, NIT Tiruchirappalli**
 Sriram Paranthaman (206126034) · Tejas Mishra (206126035)
 
+Review slides: [docs/RTTS_First_Review.pptx](docs/RTTS_First_Review.pptx) (23 slides, including the results and a demo slide).
+
 A C++17 simulator of a real-time CPU scheduler. Tasks wait in a **Sleep queue** until their next release, then move to a **Ready queue**; every tick the CPU runs the top job. Both queues are built **twice**, as an **indexed binary min-heap** and as a **Fibonacci heap**, and compared with a **sorted list** (how FreeRTOS does it). The scheduler supports **Rate-Monotonic (RM)** and **Earliest Deadline First (EDF)**, and every result is checked against exact real-time theory.
 
 The project is built to be **seen**, not just run:
