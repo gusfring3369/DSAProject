@@ -231,7 +231,7 @@ The full write-up with all tables is in **[docs/RESULTS_AND_ANALYSIS.md](docs/RE
 * **Correctness:** 33,000 task sets × RM/EDF × 4 data structures = 264,000 simulations, **0 mismatches** with theory, and all four structures give identical schedules.
 * **Insert:** Fibonacci heap exactly 1 comparison; binary heap 2.3 on average (worst 15 at N = 100,000); red-black tree about log₂N; sorted list about N/4.
 * **Worst case:** one Fibonacci extract-min right after 100,000 inserts costs **99,998** comparisons; the binary heap's worst is 32.
-* **Time:** the binary heap is the fastest in the hold test (extract-min + insert, what the Sleep queue does) from 100 elements up: 254 ns at N = 100,000, against 444 ns (red-black tree) and 755 ns (Fibonacci heap). The sorted list needs 36 µs at N = 10,000.
+* **Time:** the binary heap is the fastest in the hold test (extract-min + insert, what the Sleep queue does) from 100 elements up: 254 ns at N = 100,000, against 444 ns (red-black tree) and 754 ns (Fibonacci heap). The sorted list needs 36 µs at N = 10,000.
 * **Conclusion:** the indexed binary heap is the best fit for a real-time scheduler; the Fibonacci heap wins on comparison counts but loses on worst case and on real time, as Cormen et al. note for Fibonacci heaps in general.
 
 > **Note on "target U".** C has to be a whole number of ticks, so it is rounded and at least 1 tick. With 20 tasks and periods as short as 10, many tiny tasks get rounded *up*, so the **real** utilization is often well above the target (see the *real U* column in the viewer). That is why only about 82% of n = 20 sets are schedulable even at target U = 0.50. The verdict check uses the real C and T, so it is not affected.
