@@ -6,7 +6,7 @@ Every test was also checked the other way round: we broke the binary heap (ignor
 
 ## Data structures (TC01 – TC10)
 
-TC01 – TC05 run on **every** queue type (sorted list, binary heap, Fibonacci heap).
+TC01 – TC05 run on **every** queue type (sorted list, red-black tree, binary heap, Fibonacci heap).
 
 | ID | What is checked | Input | Expected result |
 |---|---|---|---|
@@ -40,14 +40,21 @@ TC01 – TC05 run on **every** queue type (sorted list, binary heap, Fibonacci h
 | TC18 | EDF vs RM | (4, 2), (10, 5), U = 1.0 | RM misses a deadline; EDF has 0 misses and 0 idle ticks |
 | TC19 | Overload | (10, 6), (20, 10), U = 1.1 | Misses detected with every queue |
 | TC20 | Heap snapshots | Sample set, Fibonacci heap | Tick 0: Sleep empty, Ready has 3 one-node trees, T0 on top |
-| TC21 | Same schedule with every queue | 50 random sets, RM and EDF | Identical Gantt charts |
+| TC21 | Same schedule with every queue | 50 random sets, RM and EDF, all four structures | Identical Gantt charts |
 
 ## Verdict check and dataset (TC22 – TC24)
 
 | ID | What is checked | Input | Expected result |
 |---|---|---|---|
 | TC22 | Verdict on the sample set | Sample set | Simulator and theory agree |
-| TC23 | Verdict on random sets | 330 sets (10 per n, U pair) | 0 mismatches |
+| TC23 | Verdict on random sets | 330 sets (10 per n, U pair), all four data structures | 0 mismatches |
 | TC24 | Dataset file | Write and read back the CSV | Same task sets |
 
-Result: **24 / 24 passed.**
+## Added for the final review (TC25 – TC26)
+
+| ID | What is checked | Input | Expected result |
+|---|---|---|---|
+| TC25 | Red-black tree costs | 1,000 inserts, 1 remove, 100 extract-mins | ≤ 2 log₂N + 2 comparisons per insert; remove and extract-min need 0 comparisons |
+| TC26 | Benchmark follows the theory | Operation benchmark, N = 1,000 | Fibonacci insert = 1 comparison; binary insert ≤ log₂N + 1; sorted-list worst insert > N/2; Fibonacci worst extract-min > N/2 (O(N)) but average < 3 log₂N; Fibonacci decrease-key ≤ 2; binary decrease-key ≤ log₂N + 1 |
+
+Result: **26 / 26 passed.** (24 / 24 at the second review.)

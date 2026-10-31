@@ -4,8 +4,9 @@
 const TASK_COLORS = ['#1f77d0', '#e8772e', '#4a9a1f', '#b65cc9', '#d6336c',
                      '#13a3a3', '#c9a227', '#6a5acd', '#a0522d', '#7f8c8d'];
 
-const QUEUE_LABELS = { binary: 'Binary heap', fibonacci: 'Fibonacci heap', sorted_list: 'Sorted list' };
-const QUEUE_COLORS = { sorted_list: '#9ca3af', binary: '#1f77d0', fibonacci: '#e8772e' };
+const QUEUE_KINDS = ['sorted_list', 'rb_tree', 'binary', 'fibonacci'];
+const QUEUE_LABELS = { binary: 'Binary heap', fibonacci: 'Fibonacci heap', sorted_list: 'Sorted list', rb_tree: 'Red-black tree' };
+const QUEUE_COLORS = { sorted_list: '#9ca3af', rb_tree: '#3f8f3f', binary: '#1f77d0', fibonacci: '#e8772e' };
 
 function taskColor(id) {
   return TASK_COLORS[id % TASK_COLORS.length];

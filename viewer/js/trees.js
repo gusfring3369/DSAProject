@@ -61,7 +61,8 @@ function drawQueue(container, queue) {
     container.innerHTML = '<div class="empty">(empty)</div>';
     return;
   }
-  if (queue.kind === 'sorted_list') return drawList(container, queue);
+  // std::set hides its internal tree, so the red-black tree is drawn in order like the list.
+  if (queue.kind === 'sorted_list' || queue.kind === 'rb_tree') return drawList(container, queue);
 
   const layout = layoutForest(JSON.parse(JSON.stringify(queue.roots)));
   const pad = 40;
@@ -114,15 +115,21 @@ function drawHeapArray(svg, queue, y) {
 }
 
 function drawList(container, queue) {
-  const step = 90;
+  const step = 130;   // room for the key label and an arrow
   const width = Math.max(320, queue.roots.length * step + 60);
   const svg = makeSvg(container, width, 100, true);
   queue.roots.forEach((node, i) => {
     const x = 50 + i * step;
     if (i > 0) {
-      svg.appendChild(el('line', { x1: x - step + NODE_R + 40, y1: 50, x2: x - NODE_R - 8, y2: 50, stroke: '#9ca3af', 'stroke-width': 2 }));
+      svg.appendChild(el('line', { x1: x - step + NODE_R + 54, y1: 50, x2: x - NODE_R - 8, y2: 50, stroke: '#9ca3af', 'stroke-width': 2 }));
       svg.appendChild(el('path', { d: `M ${x - NODE_R - 4} 50 l -9 -5 v 10 z`, fill: '#9ca3af' }));
     }
     drawNode(svg, node, x, 50, node.id === queue.top);
   });
+  const legend = document.createElement('p');
+  legend.className = 'tree-legend';
+  legend.textContent = queue.kind === 'rb_tree'
+    ? 'Red-black tree (std::set) shown in sorted order: the library does not expose its internal tree'
+    : 'Sorted list: always in order, so every insert walks the list';
+  container.appendChild(legend);
 }

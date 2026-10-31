@@ -1,9 +1,10 @@
 // test_queues.cpp
-// TC01 - TC10: the data structures.
+// TC01 - TC10 and TC25: the data structures.
 // TC01 - TC05 run the same checks on every queue type; TC06 - TC10 check
 // things that only make sense for one structure (heap shape, Fibonacci cuts).
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 
 #include "rtts/generator.hpp"
@@ -300,4 +301,23 @@ TEST(TC10_comparison_counts_match_the_theory) {
     CHECK(list.comparisons() > binary.comparisons());
     CHECK(binary.comparisons() > fib.comparisons());
     CHECK_EQ(fib.comparisons(), 499LL);   // the very first insert has no min to compare with
+}
+
+// ------------------------------------------------- added for the final review
+
+TEST(TC25_red_black_tree_costs) {
+    // Insert walks down a balanced tree: at most about 2 log2 N comparisons.
+    // Extract-min and remove erase a node we already point to: no comparisons.
+    Random rng(25);
+    std::vector<Task> tasks = makeTasks(1000, rng);
+    for (Task& t : tasks) t.release = static_cast<int>(rng.index(1000000));
+    RedBlackTreeQueue tree(testKey);
+    for (Task& t : tasks) tree.insert(&t);
+    double perInsert = double(tree.comparisons()) / tasks.size();
+    CHECK(perInsert <= 2 * std::log2(1000.0) + 2);
+
+    long long before = tree.comparisons();
+    tree.remove(&tasks[500]);
+    for (int i = 0; i < 100; ++i) tree.extractMin();
+    CHECK_EQ(tree.comparisons(), before);
 }

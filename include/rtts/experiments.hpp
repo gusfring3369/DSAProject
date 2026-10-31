@@ -43,7 +43,12 @@ struct VerdictReport {
     std::vector<VerdictRow> rows;
     std::vector<std::pair<TaskSetRecord, Verdict>> mismatches;
     int totalSets = 0;
+    long long simulations = 0;   // task sets x 2 policies x queue types
 };
+
+// Every task set runs with all four queue types; they must all give the
+// same schedule, and that schedule must agree with the theory.
+const std::vector<std::string>& verdictQueues();
 
 VerdictReport runVerdictExperiment(const std::vector<TaskSetRecord>& records,
                                    const Progress& progress = nullptr);
@@ -62,7 +67,7 @@ struct BenchmarkRow {
 
 struct BenchmarkConfig {
     std::vector<int> sizes = {5, 10, 20, 50, 100, 200, 500, 1000};
-    std::vector<std::string> queues = {"sorted_list", "binary", "fibonacci"};
+    std::vector<std::string> queues = {"sorted_list", "rb_tree", "binary", "fibonacci"};
     int setsPerSize = 5;
     double utilization = 0.7;
     Policy policy = Policy::EDF;

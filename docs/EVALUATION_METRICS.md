@@ -8,7 +8,7 @@ The project is about the **data structure** behind the scheduler, so the main me
 |---|---|---|---|
 | M1 | **Key comparisons per operation** (average) | How much work one insert / extract-min / decrease-key costs | Every queue counts each call of its compare function. Exact and the same on every computer. |
 | M2 | **Worst-case comparisons in one operation** (and in one scheduler tick) | Predictability. A real-time scheduler is judged by its slowest decision, not the average one. | Largest value of M1 seen in a run |
-| M3 | **Time per operation / per tick** (ns or µs, average) | Real cost, including memory allocation and pointer chasing that M1 does not see | `std::chrono::steady_clock` around many operations, Release build (-O2), median of 3 runs |
+| M3 | **Time per operation / per tick** (ns or µs, average) | Real cost, including memory allocation and pointer chasing that M1 does not see | `std::chrono::steady_clock` around many operations, Release build (-O3), median of 3 runs |
 | M4 | **Growth with N** | Does the cost follow O(1), O(log N) or O(N)? | M1 – M3 for N = 10 … 100,000 elements |
 
 Operations measured: **insert**, **extract-min**, **decrease-key**, and **hold** (extract-min followed by insert with a later key: exactly what the Sleep queue does every time a job finishes).

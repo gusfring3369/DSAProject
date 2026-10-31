@@ -30,6 +30,7 @@ add_library(rtts_core
     src/queues/binary_heap.cpp
     src/queues/fibonacci_heap.cpp
     src/queues/sorted_list.cpp
+    src/queues/rb_tree_queue.cpp
     src/generator.cpp
     src/theory.cpp
     src/metrics.cpp
@@ -37,6 +38,7 @@ add_library(rtts_core
     src/verdict.cpp
     src/dataset.cpp
     src/experiments.cpp
+    src/op_benchmark.cpp
     src/terminal_view.cpp
     src/json_export.cpp
 )
@@ -54,6 +56,7 @@ add_executable(rtts_tests
     tests/test_theory.cpp
     tests/test_scheduler.cpp
     tests/test_verdict.cpp
+    tests/test_op_benchmark.cpp
 )
 target_link_libraries(rtts_tests PRIVATE rtts_core)
 add_test(NAME all_tests COMMAND rtts_tests)

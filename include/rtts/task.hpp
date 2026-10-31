@@ -30,6 +30,12 @@ struct Task {
     int remaining = 0;     // ticks of work left for the current job
     int wakeUpTime = 0;    // when the task leaves the Sleep queue
 
+    // Where the task sits inside a binary heap (-1 = not in one). This is the
+    // "index" of the indexed heap: the heap updates it on every swap, so the
+    // heap can find any task in O(1). A task is in at most one binary heap at
+    // a time (it is either asleep or ready).
+    int heapPos = -1;
+
     Task() = default;
     Task(int id, int period, int wcet, int deadline)
         : id(id), period(period), wcet(wcet), deadline(deadline) {}

@@ -9,7 +9,7 @@
 function lineChart(container, opts) {
   // Draw at the card's real width so text keeps the same size in wide cards.
   const W = Math.max(480, container.clientWidth || 640), H = 330;
-  const m = { left: 64, right: 18, top: 40, bottom: 48 };
+  const m = { left: 64, right: 34, top: 40, bottom: 48 };
   const svg = makeSvg(container, W, H);
 
   const all = opts.series.flatMap(s => s.points);

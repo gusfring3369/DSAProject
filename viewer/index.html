@@ -47,6 +47,7 @@
             <option value="binary">Binary heap</option>
             <option value="fibonacci">Fibonacci heap</option>
             <option value="sorted_list">Sorted list</option>
+            <option value="rb_tree">Red-black tree</option>
           </select>
         </label>
         <div class="buttons">
@@ -98,7 +99,7 @@
         <label>Policy
           <select id="compare-policy"><option>RM</option><option selected>EDF</option></select>
         </label>
-        <p class="hint grow">Same task set, same policy, three different queues. The schedule must be identical; only the work per tick changes.</p>
+        <p class="hint grow">Same task set, same policy, four different queues. The schedule must be identical; only the work per tick changes.</p>
       </div>
       <div class="card">
         <h2>Key comparisons per tick</h2>
@@ -133,6 +134,25 @@
 
     <!-- ============================================================== Benchmark -->
     <section id="tab-benchmark" class="tab">
+      <h2 class="section-title">Part 1 · The data structures on their own</h2>
+      <div id="no-operations" class="notice hidden">
+        No data-structure benchmark yet. Run <code>./rtts operations</code>, then reload.
+      </div>
+      <div class="card controls">
+        <span>Operation</span>
+        <div class="buttons" id="op-buttons"></div>
+        <p class="hint grow" id="op-info"></p>
+      </div>
+      <div class="grid two">
+        <div class="card"><h2>Average comparisons per operation</h2><div id="op-avg" class="chart"></div></div>
+        <div class="card"><h2>Worst comparisons in one operation</h2><div id="op-worst" class="chart"></div></div>
+      </div>
+      <div class="grid two">
+        <div class="card"><h2>Average time per operation (ns)</h2><div id="op-time" class="chart"></div></div>
+        <div class="card"><h2>Table</h2><table class="data" id="op-table"></table></div>
+      </div>
+
+      <h2 class="section-title">Part 2 · Inside the scheduler</h2>
       <div id="no-benchmark" class="notice hidden">
         No benchmark data yet. Run <code>./rtts benchmark</code>, then reload.
       </div>
@@ -146,7 +166,8 @@
         <div class="card">
           <h2>What this shows</h2>
           <ul class="notes">
-            <li><b>Sorted list:</b> insert walks the list, so the work grows with N.</li>
+            <li><b>Sorted list</b> (FreeRTOS): insert walks the list, so the work grows with N.</li>
+            <li><b>Red-black tree</b> (Linux): O(log N) insert, and removing the first node needs no comparisons.</li>
             <li><b>Binary heap:</b> every operation is O(log N), in the worst case too.</li>
             <li><b>Fibonacci heap:</b> insert is O(1) and work is postponed to ExtractMin, so it does the fewest comparisons. It allocates a node per insert and follows pointers, so it can still be slower in real time.</li>
             <li>The worst tick is t&nbsp;=&nbsp;0, when all N tasks are released at once.</li>
@@ -166,6 +187,7 @@
   <script src="data/trace.js"></script>
   <script src="data/verdict.js"></script>
   <script src="data/benchmark.js"></script>
+  <script src="data/operations.js"></script>
 
   <script src="js/svg.js"></script>
   <script src="js/trees.js"></script>

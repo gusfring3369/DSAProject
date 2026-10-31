@@ -155,8 +155,9 @@ void printQueue(const QueueView& q, const std::string& title) {
         std::cout << "    " << dim("(empty)") << "\n";
         return;
     }
-    if (q.kind == "sorted_list") {
-        // A sorted list is simplest to read as one row.
+    if (q.kind == "sorted_list" || q.kind == "rb_tree") {
+        // A sorted list is simplest to read as one row. std::set hides its
+        // internal tree, so the red-black tree is shown in order too.
         std::cout << "    ";
         for (std::size_t i = 0; i < q.roots.size(); ++i) {
             const NodeView& n = q.roots[i];
@@ -211,6 +212,20 @@ void printBenchmarkTable(const std::vector<BenchmarkRow>& rows) {
                   << std::setw(5) << r.n << "   " << fmt(r.actualU, 2)
                   << std::setw(13) << fmt(r.avgComparisons, 2) << std::setw(17) << r.worstComparisons
                   << std::setw(14) << fmt(r.avgMicros, 3) << std::setw(16) << fmt(r.worstMicros, 1) << "\n";
+    }
+}
+
+void printOperationsTable(const std::vector<OperationRow>& rows) {
+    // One block per operation, so each block reads like one graph.
+    for (const std::string& op : operationNames()) {
+        std::cout << "\n  " << bold(op) << "\n";
+        std::cout << "  " << bold("queue                  N    avg cmp/op   worst cmp/op     ns/op") << "\n";
+        for (const OperationRow& r : rows) {
+            if (r.operation != op) continue;
+            std::cout << "  " << std::left << std::setw(16) << queueLabel(r.queue) << std::right
+                      << std::setw(9) << r.n << std::setw(13) << fmt(r.avgComparisons, 2)
+                      << std::setw(15) << r.worstComparisons << std::setw(10) << fmt(r.avgNs, 1) << "\n";
+        }
     }
 }
 

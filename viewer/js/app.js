@@ -7,6 +7,7 @@
 const TRACE = window.RTTS_TRACE;
 const VERDICT = window.RTTS_VERDICT;
 const BENCH = window.RTTS_BENCHMARK;
+const OPS = window.RTTS_OPERATIONS;
 
 const $ = id => document.getElementById(id);
 
@@ -167,7 +168,7 @@ function setUpSimulation() {
 function drawCompare() {
   if (!TRACE) return;
   const policy = $('compare-policy').value;
-  const runs = ['sorted_list', 'binary', 'fibonacci'].map(q => TRACE.runs.find(r => r.policy === policy && r.queue === q));
+  const runs = QUEUE_KINDS.map(q => TRACE.runs.find(r => r.policy === policy && r.queue === q)).filter(Boolean);
 
   lineChart($('compare-chart'), {
     series: runs.map(r => ({
@@ -177,7 +178,7 @@ function drawCompare() {
     xLabel: 'tick', yLabel: 'key comparisons',
   });
 
-  const reference = JSON.stringify(runs[1].gantt);
+  const reference = JSON.stringify(runs.find(r => r.queue === 'binary').gantt);
   fillTable($('compare-table'),
     ['Queue', 'Total comparisons', 'Average per tick', 'Worst tick', 'Deadline misses', 'Same schedule as binary heap?'],
     runs.map(r => [
@@ -205,7 +206,7 @@ function drawVerdict() {
   $('verdict-stats').innerHTML = [
     ['task sets checked', VERDICT.totalSets.toLocaleString('en-US'), ''],
     ['sets per (n, U) pair', VERDICT.setsPerPoint, ''],
-    ['simulations run', (VERDICT.totalSets * 4).toLocaleString('en-US'), ''],
+    ['simulations run', (VERDICT.simulations ?? VERDICT.totalSets * 4).toLocaleString('en-US'), ''],
     ['mismatches', VERDICT.mismatches, VERDICT.mismatches ? 'bad' : 'ok'],
   ].map(([label, value, cls]) => `<div class="stat ${cls}"><div class="value">${value}</div><div class="label">${label}</div></div>`).join('');
 
@@ -238,11 +239,12 @@ function drawVerdict() {
 // ======================================================== Benchmark tab
 
 function drawBenchmark() {
+  drawOperations();
   if (!BENCH) { $('no-benchmark').classList.remove('hidden'); return; }
   $('benchmark-info').textContent =
     `${BENCH.policy} scheduling, target U = ${BENCH.utilization}, ${BENCH.setsPerSize} random task sets per size, one hyperperiod each. Both axes are logarithmic.`;
 
-  const queues = ['sorted_list', 'binary', 'fibonacci'];
+  const queues = QUEUE_KINDS.filter(q => BENCH.rows.some(r => r.queue === q));
   const series = key => queues.map(q => ({
     name: QUEUE_LABELS[q], color: QUEUE_COLORS[q],
     points: BENCH.rows.filter(r => r.queue === q).map(r => [r.n, r[key]]),
@@ -257,6 +259,45 @@ function drawBenchmark() {
     BENCH.rows.map(r => [
       `<span class="swatch" style="background:${QUEUE_COLORS[r.queue]}"></span>${QUEUE_LABELS[r.queue]}`,
       r.n, r.u.toFixed(2), r.avgCmp.toFixed(2), r.worstCmp.toLocaleString('en-US'), r.avgUs.toFixed(3), r.worstUs.toFixed(1),
+    ]));
+}
+
+// ----------------------------------------- data structures on their own
+
+const OP_INFO = {
+  insert: 'N inserts into an empty queue, random keys.',
+  extract_min: 'Then N extract-mins until the queue is empty. Sorted list and red-black tree take the first element: 0 comparisons, so they are not on the log-scale comparison charts.',
+  decrease_key: 'N − 1 decrease-keys on a full queue.',
+  hold: 'Extract-min, then insert the same task with a later key: exactly what the Sleep queue does when a job finishes. 100,000 per run.',
+};
+const OP_LABELS = { insert: 'Insert', extract_min: 'Extract-min', decrease_key: 'Decrease-key', hold: 'Hold (extract + insert)' };
+let currentOp = 'hold';
+
+function drawOperations() {
+  if (!OPS) { $('no-operations').classList.remove('hidden'); return; }
+
+  $('op-buttons').innerHTML = Object.keys(OP_LABELS).map(op =>
+    `<button class="${op === currentOp ? 'selected' : ''}" data-op="${op}">${OP_LABELS[op]}</button>`).join('');
+  $('op-buttons').querySelectorAll('button').forEach(b =>
+    b.addEventListener('click', () => { currentOp = b.dataset.op; drawOperations(); }));
+  $('op-info').textContent = OP_INFO[currentOp] + ` Time = median of ${OPS.repeats} runs.`;
+
+  const rows = OPS.rows.filter(r => r.op === currentOp);
+  // Log scales cannot show 0, so points with 0 comparisons are left out.
+  const series = key => QUEUE_KINDS.map(q => ({
+    name: QUEUE_LABELS[q], color: QUEUE_COLORS[q],
+    points: rows.filter(r => r.queue === q && r[key] > 0).map(r => [r.n, r[key]]),
+  })).filter(s => s.points.length > 0);
+
+  const axes = { xLabel: 'number of elements N', logX: true, logY: true };
+  lineChart($('op-avg'), { ...axes, series: series('avgCmp'), yLabel: 'comparisons' });
+  lineChart($('op-worst'), { ...axes, series: series('worstCmp'), yLabel: 'comparisons' });
+  lineChart($('op-time'), { ...axes, series: series('ns'), yLabel: 'ns per operation' });
+
+  fillTable($('op-table'), ['Queue', 'N', 'avg cmp', 'worst cmp', 'ns / op'],
+    rows.map(r => [
+      `<span class="swatch" style="background:${QUEUE_COLORS[r.queue]}"></span>${QUEUE_LABELS[r.queue]}`,
+      r.n.toLocaleString('en-US'), r.avgCmp.toFixed(2), r.worstCmp.toLocaleString('en-US'), r.ns.toFixed(1),
     ]));
 }
 

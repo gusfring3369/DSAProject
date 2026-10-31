@@ -9,6 +9,7 @@
 
 #include "rtts/experiments.hpp"
 #include "rtts/metrics.hpp"
+#include "rtts/op_benchmark.hpp"
 #include "rtts/queues/task_queue.hpp"
 #include "rtts/scheduler.hpp"
 #include "rtts/task.hpp"
@@ -39,6 +40,7 @@ void printQueue(const QueueView& q, const std::string& title);
 void printMetrics(const Metrics& m);
 void printVerdictTable(const VerdictReport& report);
 void printBenchmarkTable(const std::vector<BenchmarkRow>& rows);
+void printOperationsTable(const std::vector<OperationRow>& rows);
 
 void progressBar(std::size_t done, std::size_t total, const std::string& label);
 

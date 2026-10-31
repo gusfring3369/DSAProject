@@ -1,6 +1,6 @@
 // binary_heap.cpp
-// See binary_heap.hpp for the idea. Every swap also updates position_,
-// otherwise lookups by task id would point to the wrong slot.
+// See binary_heap.hpp for the idea. Every swap also updates heapPos,
+// otherwise a task would point to the wrong slot.
 
 #include "rtts/queues/binary_heap.hpp"
 
@@ -11,7 +11,7 @@ namespace rtts {
 void BinaryHeap::insert(Task* task) {
     // Put the task at the end and let it float up to its place.
     items_.push_back(task);
-    position_[task->id] = items_.size() - 1;
+    task->heapPos = static_cast<int>(items_.size()) - 1;
     siftUp(items_.size() - 1);
 }
 
@@ -27,42 +27,44 @@ Task* BinaryHeap::extractMin() {
 }
 
 void BinaryHeap::remove(Task* task) {
-    auto it = position_.find(task->id);
-    if (it == position_.end()) throw std::runtime_error("BinaryHeap::remove: task not in heap");
+    if (!contains(task)) throw std::runtime_error("BinaryHeap::remove: task not in heap");
 
     // Trick: swap with the last element, pop the last element, then fix the
     // element that moved into the hole. It may need to go up OR down.
-    std::size_t i = it->second;
+    std::size_t i = task->heapPos;
     std::size_t last = items_.size() - 1;
     swapItems(i, last);
     items_.pop_back();
-    position_.erase(task->id);
+    task->heapPos = -1;
 
     if (i < items_.size()) {
         Task* moved = items_[i];
         siftUp(i);
-        siftDown(position_[moved->id]);
+        siftDown(moved->heapPos);
     }
 }
 
 void BinaryHeap::update(Task* task) {
-    siftUp(position_.at(task->id));
-    siftDown(position_.at(task->id));
+    siftUp(task->heapPos);
+    siftDown(task->heapPos);
 }
 
 void BinaryHeap::decreaseKey(Task* task) {
     // A smaller key can only move the task towards the root.
-    siftUp(position_.at(task->id));
+    siftUp(task->heapPos);
 }
 
 bool BinaryHeap::contains(const Task* task) const {
-    return position_.count(task->id) > 0;
+    // Check the slot really holds this task: a stale heapPos left over from
+    // another heap must not count.
+    return task->heapPos >= 0 && static_cast<std::size_t>(task->heapPos) < items_.size() &&
+           items_[task->heapPos] == task;
 }
 
 void BinaryHeap::swapItems(std::size_t i, std::size_t j) {
     std::swap(items_[i], items_[j]);
-    position_[items_[i]->id] = i;
-    position_[items_[j]->id] = j;
+    items_[i]->heapPos = static_cast<int>(i);
+    items_[j]->heapPos = static_cast<int>(j);
 }
 
 void BinaryHeap::siftUp(std::size_t i) {

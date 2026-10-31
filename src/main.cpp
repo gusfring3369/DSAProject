@@ -6,7 +6,8 @@
 //   rtts compare     binary heap vs Fibonacci heap vs sorted list on the same task set
 //   rtts dataset     generate the synthetic dataset as CSV
 //   rtts verdict     Module 8 over the whole dataset (simulator vs theory)
-//   rtts benchmark   cost per tick of the three queues as the task count grows
+//   rtts benchmark   cost per tick of each queue inside the scheduler, as the task count grows
+//   rtts operations  each data structure on its own: insert, extract-min, decrease-key, hold
 //   rtts all         demo + verdict + benchmark, ready for the viewer
 //
 // Run "rtts help" for all options.
@@ -28,6 +29,7 @@
 #include "rtts/experiments.hpp"
 #include "rtts/generator.hpp"
 #include "rtts/json_export.hpp"
+#include "rtts/op_benchmark.hpp"
 #include "rtts/queues/queue_factory.hpp"
 #include "rtts/scheduler.hpp"
 #include "rtts/terminal_view.hpp"
@@ -210,7 +212,7 @@ int cmdVerdict(const Options& opts) {
         opts.has("in") ? loadDatasetCsv(opts.get("in", "")) : makeDataset(sets);
 
     view::printHeader("Module 8: verdict check over " + std::to_string(records.size()) + " task sets");
-    std::cout << "  Each set runs RM and EDF with binary AND Fibonacci heaps and is compared with theory.\n\n";
+    std::cout << "  Each set runs RM and EDF with all four data structures; all must give the same schedule, and it must agree with theory.\n\n";
 
     VerdictReport report = runVerdictExperiment(records, [](std::size_t d, std::size_t t) {
         view::progressBar(d, t, "checking");
@@ -249,10 +251,34 @@ int cmdBenchmark(const Options& opts) {
     return 0;
 }
 
+int cmdOperations(const Options& opts) {
+    OperationConfig config;
+    config.repeats = opts.getInt("repeats", config.repeats);
+    if (opts.has("max-n")) {
+        int maxN = opts.getInt("max-n", 100000);
+        std::vector<int> sizes;
+        for (int n : config.sizes) if (n <= maxN) sizes.push_back(n);
+        config.sizes = sizes;
+    }
+
+    view::printHeader("Data-structure benchmark: insert, extract-min, decrease-key, hold");
+    std::cout << "  Each queue on its own, N = 10 ... 100,000 (sorted list up to " << config.sortedListMaxN
+              << "), median time of " << config.repeats << " runs\n\n";
+
+    auto rows = runOperationBenchmark(config, [](std::size_t d, std::size_t t) { view::progressBar(d, t, "running"); });
+    view::printOperationsTable(rows);
+
+    writeOperationsCsv(resultsDir(opts) + "/operations.csv", rows);
+    writeOperationsJs(viewerDir(opts) + "/operations.js", rows, config);
+    std::cout << "\n  Results: " << resultsDir(opts) << "/operations.csv, " << viewerDir(opts) << "/operations.js\n";
+    return 0;
+}
+
 int cmdAll(const Options& opts) {
     cmdDemo(opts);
     int status = cmdVerdict(opts);
     cmdBenchmark(opts);
+    cmdOperations(opts);
     std::cout << "\n  Everything is ready. Open viewer/index.html in a browser.\n";
     return status;
 }
@@ -269,8 +295,9 @@ Commands
   compare     Same task set with binary heap, Fibonacci heap and sorted list
   dataset     Write the synthetic dataset (UUniFast) to a CSV file
   verdict     Module 8: simulator vs theory over the whole dataset
-  benchmark   Cost per tick of each queue as the number of tasks grows
-  all         demo + verdict + benchmark
+  benchmark   Cost per tick of each queue inside the scheduler, as the number of tasks grows
+  operations  Each data structure on its own: insert, extract-min, decrease-key, hold
+  all         demo + verdict + benchmark + operations
   help        Show this text
 
 Task set options (demo, step, compare)
@@ -278,7 +305,7 @@ Task set options (demo, step, compare)
   --u U            target utilization for the random set (default 0.8)
   --seed S         random seed (default 1)
   --policy RM|EDF  scheduling policy
-  --queue Q        binary | fibonacci | sorted_list
+  --queue Q        binary | fibonacci | sorted_list | rb_tree
   --ticks K        only simulate / draw the first K ticks
 
 Other options
@@ -287,7 +314,8 @@ Other options
                    benchmark: sets per size (default 5)
   --in FILE        verdict: read task sets from a CSV made by 'rtts dataset'
   --out FILE       dataset: output file (default data/tasksets.csv)
-  --max-n N        benchmark: largest task count (default 1000)
+  --max-n N        benchmark / operations: largest size (default 1000 / 100000)
+  --repeats R      operations: timing repeats, the median is kept (default 3)
   --no-color       plain text output
   --no-export      demo: do not write viewer/data/trace.js
 
@@ -298,6 +326,7 @@ Examples
   rtts demo --n 5 --u 0.95 --seed 42
   rtts verdict --sets 100
   rtts benchmark
+  rtts operations
 )";
 }
 
@@ -331,6 +360,7 @@ int main(int argc, char** argv) {
         if (command == "dataset") return cmdDataset(opts);
         if (command == "verdict") return cmdVerdict(opts);
         if (command == "benchmark") return cmdBenchmark(opts);
+        if (command == "operations") return cmdOperations(opts);
         if (command == "all") return cmdAll(opts);
         if (command == "help" || command == "--help" || command == "-h") {
             printHelp();

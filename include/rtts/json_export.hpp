@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "rtts/experiments.hpp"
+#include "rtts/op_benchmark.hpp"
 #include "rtts/scheduler.hpp"
 #include "rtts/task.hpp"
 
@@ -36,6 +37,8 @@ void writeBenchmarkJs(const std::string& path, const std::vector<BenchmarkRow>& 
 // Plain CSV versions of the experiment results (for Excel / the report).
 void writeVerdictCsv(const std::string& path, const VerdictReport& report);
 void writeBenchmarkCsv(const std::string& path, const std::vector<BenchmarkRow>& rows);
+void writeOperationsJs(const std::string& path, const std::vector<OperationRow>& rows, const OperationConfig& config);
+void writeOperationsCsv(const std::string& path, const std::vector<OperationRow>& rows);
 void writeMismatches(const std::string& path, const VerdictReport& report);
 
 }  // namespace rtts

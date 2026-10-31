@@ -112,6 +112,7 @@ table.data td { border-bottom: 1px solid var(--line); padding: 6px 10px; }
 .log .preempt { color: var(--warn); }
 
 .notes { margin: 0; padding-left: 18px; line-height: 1.6; }
+.section-title { color: var(--accent); font-size: 19px; margin: 8px 0 14px; }
 .notice { background: #fff6d6; border: 1px solid #f1d58a; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; }
 .hidden { display: none; }
 code { background: #eef1f6; padding: 1px 6px; border-radius: 4px; }

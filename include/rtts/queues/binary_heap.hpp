@@ -5,13 +5,13 @@
 //     parent of i   = (i - 1) / 2
 //     children of i = 2i + 1 and 2i + 2
 //
-// "Indexed" means we also keep a map  task id -> position in the array.
-// That map lets us find, remove or re-prioritise ANY task in O(log N)
-// instead of scanning the whole array in O(N).
+// "Indexed" means every task also remembers its own position in the array
+// (task->heapPos), and the heap updates it on every swap. With that we can
+// find, remove or re-prioritise ANY task in O(log N) instead of scanning the
+// whole array in O(N).
 
 #pragma once
 
-#include <unordered_map>
 #include <vector>
 
 #include "rtts/queues/task_queue.hpp"
@@ -40,8 +40,7 @@ private:
     void siftDown(std::size_t i);
     NodeView viewAt(std::size_t i) const;
 
-    std::vector<Task*> items_;                       // the heap array
-    std::unordered_map<int, std::size_t> position_;  // task id -> index (the "index")
+    std::vector<Task*> items_;   // the heap array; items_[i]->heapPos == i
 };
 
 }  // namespace rtts

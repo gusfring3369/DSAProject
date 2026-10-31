@@ -71,9 +71,11 @@ TEST(TC21_same_schedule_with_every_queue) {
     for (int i = 0; i < 50; ++i) {
         TaskSet tasks = generateTaskSet(8, 0.9, rng);
         for (Policy policy : {Policy::RM, Policy::EDF}) {
-            Simulator a(tasks, policy, "binary"), b(tasks, policy, "fibonacci"), c(tasks, policy, "sorted_list");
+            Simulator a(tasks, policy, "binary"), b(tasks, policy, "fibonacci"),
+                      c(tasks, policy, "sorted_list"), d(tasks, policy, "rb_tree");
             CHECK(a.run().gantt == b.run().gantt);
             CHECK(a.metrics().gantt == c.run().gantt);
+            CHECK(a.metrics().gantt == d.run().gantt);
         }
     }
 }

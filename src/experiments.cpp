@@ -12,6 +12,12 @@ namespace rtts {
 
 // ------------------------------------------------------------ verdict
 
+const std::vector<std::string>& verdictQueues() {
+    // Binary heap first: it is the reference schedule the others are compared with.
+    static const std::vector<std::string> queues = {"binary", "fibonacci", "sorted_list", "rb_tree"};
+    return queues;
+}
+
 VerdictReport runVerdictExperiment(const std::vector<TaskSetRecord>& records, const Progress& progress) {
     struct Counts { int sets = 0, ll = 0, hyp = 0, rta = 0, rmSim = 0, edf = 0, edfSim = 0, bad = 0; double sumU = 0; };
     std::map<std::pair<int, int>, Counts> counts;   // key: (n, U * 100)
@@ -19,7 +25,7 @@ VerdictReport runVerdictExperiment(const std::vector<TaskSetRecord>& records, co
     VerdictReport report;
     for (std::size_t i = 0; i < records.size(); ++i) {
         const TaskSetRecord& rec = records[i];
-        Verdict v = checkTaskSet(rec.tasks);
+        Verdict v = checkTaskSet(rec.tasks, verdictQueues());
 
         Counts& c = counts[{rec.n, static_cast<int>(rec.targetU * 100 + 0.5)}];
         c.sets++;
@@ -53,6 +59,7 @@ VerdictReport runVerdictExperiment(const std::vector<TaskSetRecord>& records, co
         report.rows.push_back(row);
     }
     report.totalSets = static_cast<int>(records.size());
+    report.simulations = static_cast<long long>(records.size()) * 2 * verdictQueues().size();
     return report;
 }
 

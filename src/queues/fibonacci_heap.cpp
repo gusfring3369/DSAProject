@@ -4,7 +4,6 @@
 #include "rtts/queues/fibonacci_heap.hpp"
 
 #include <algorithm>
-#include <map>
 #include <stdexcept>
 
 namespace rtts {
@@ -98,23 +97,24 @@ std::vector<Task*> FibonacciHeap::tasks() const {
 
 void FibonacciHeap::consolidate() {
     // Link roots of equal degree until all root degrees are different.
-    // byDegree[d] = the root of degree d we have seen so far.
-    std::map<std::size_t, Node*> byDegree;
-    std::vector<Node*> oldRoots = roots_;
-    for (Node* node : oldRoots) {
-        while (byDegree.count(node->degree())) {
+    // byDegree[d] = the root of degree d we have seen so far (the array A in
+    // the textbook). Degrees are O(log N), so the array stays small.
+    std::vector<Node*> byDegree;
+    for (Node* node : roots_) {
+        while (node->degree() < byDegree.size() && byDegree[node->degree()] != nullptr) {
             Node* other = byDegree[node->degree()];
-            byDegree.erase(node->degree());
+            byDegree[node->degree()] = nullptr;
             node = link(node, other);
         }
+        if (node->degree() >= byDegree.size()) byDegree.resize(node->degree() + 1, nullptr);
         byDegree[node->degree()] = node;
     }
 
     // Rebuild the root list and find the new minimum.
     roots_.clear();
     min_ = nullptr;
-    for (auto& entry : byDegree) {
-        Node* root = entry.second;
+    for (Node* root : byDegree) {
+        if (root == nullptr) continue;
         roots_.push_back(root);
         if (min_ == nullptr || before(root, min_)) min_ = root;
     }

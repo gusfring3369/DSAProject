@@ -73,6 +73,9 @@ protected:
 
     long keyOf(const Task* t) const { return key_(*t); }
 
+    // For queues that compare stored keys themselves (the red-black tree).
+    void countComparison() const { ++comparisons_; }
+
 private:
     KeyFn key_;
     mutable long long comparisons_ = 0;
